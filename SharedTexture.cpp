@@ -92,6 +92,8 @@ void SharedTextureSender::setupNativeSender(bool forceRecreation)
 			sender->CreateSender(sharingName.getCharPointer(), width, height);
 			isInit = true;
 		}
+
+        sender->SetSenderName (sharingName.getCharPointer());
 #elif JUCE_MAC
 
 #endif
