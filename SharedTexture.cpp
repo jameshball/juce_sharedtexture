@@ -24,7 +24,6 @@ SharedTextureSender::SharedTextureSender(const juce::String& name, int width, in
 	sharingNameChanged(false),
 	enabled(enabled),
 	fbo(nullptr),
-	externalFBO(nullptr),
 	width(width),
 	height(height)
 {
@@ -56,17 +55,16 @@ void SharedTextureSender::setSize(int w, int h)
 	height = h;
 }
 
-void SharedTextureSender::setExternalFBO(juce::OpenGLFrameBuffer* newFBO)
+void SharedTextureSender::setExternalFBO (const GLuint newTextureId)
 {
-	externalFBO = newFBO;
-	setSize(externalFBO->getWidth(), externalFBO->getHeight());
+	externalFBO = newTextureId;
 }
 
 void SharedTextureSender::createImageDefinition()
 {
 	if (width == 0 || height == 0) return;
 
-	if (externalFBO != nullptr) return;
+	if (externalFBO != 0) return;
 
 	if (fbo != nullptr) fbo->release();
 
@@ -135,15 +133,7 @@ void SharedTextureSender::renderGL()
 		setupNativeSender(true);
 	}
 
-
-	juce::OpenGLFrameBuffer* targetFBO = fbo;
-
-	if (externalFBO != nullptr)
-	{
-		if (externalFBO->getWidth() != width || externalFBO->getHeight() != height) setSize(externalFBO->getWidth(), externalFBO->getHeight());
-		targetFBO = externalFBO;
-	}
-	else
+	if (externalFBO == 0)
 	{
 		if (!isInit || !image.isValid() || image.getWidth() != width || image.getHeight() != height) createImageDefinition();
 		if (!image.isValid())
@@ -160,10 +150,8 @@ void SharedTextureSender::renderGL()
 		g.endTransparencyLayer();
 	}
 
-	if (targetFBO == nullptr) return;
-
 #if JUCE_WINDOWS
-	sender->SendTexture(targetFBO->getTextureID(), juce::gl::GL_TEXTURE_2D, width, height);
+	sender->SendTexture(externalFBO, juce::gl::GL_TEXTURE_2D, width, height);
 #elif JUCE_MAC
 
 #endif

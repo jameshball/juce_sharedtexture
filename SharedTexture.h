@@ -27,7 +27,7 @@ public:
 
 	juce::Image image;
 	juce::OpenGLFrameBuffer *fbo;
-	juce::OpenGLFrameBuffer* externalFBO;
+	GLuint externalFBO = 0; // 0 is an invalid value for a texture id
 
 	int width;
 	int height;
@@ -36,7 +36,7 @@ public:
 
 	void setSize(int w, int h);
 
-	void setExternalFBO(juce::OpenGLFrameBuffer * newFBO);
+	void setExternalFBO(GLuint newTextureId);
 
 	void initGL();
 	void renderGL();
