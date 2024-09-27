@@ -41,6 +41,8 @@ SharedTextureSender::~SharedTextureSender()
 	sender->ReleaseSender();
 	//sender->Release();
 	sender = nullptr;
+#elif JUCE_MAC
+    [sender stop];
 #endif
 }
 
@@ -95,7 +97,7 @@ void SharedTextureSender::setupNativeSender(bool forceRecreation)
 
         sender->SetSenderName (sharingName.getCharPointer());
 #elif JUCE_MAC
-
+        sender.name = (NSString*) sharingName.toCFString();
 #endif
 	}
 	else
@@ -113,7 +115,11 @@ void SharedTextureSender::setupNativeSender(bool forceRecreation)
 
 void SharedTextureSender::initGL()
 {
-	//createImageDefinition();
+    //createImageDefinition();
+#if JUCE_MAC
+    NSOpenGLContext* nsgl = (NSOpenGLContext*)juce::OpenGLContext::getCurrentContext()->getRawContext();
+    sender = [[SyphonOpenGLServer alloc] initWithName: (NSString*)sharingName.toCFString() context: nsgl.CGLContextObj options: nil];
+#endif
 }
 
 void SharedTextureSender::renderGL()
@@ -155,7 +161,11 @@ void SharedTextureSender::renderGL()
 #if JUCE_WINDOWS
 	sender->SendTexture(externalFBO, juce::gl::GL_TEXTURE_2D, width, height);
 #elif JUCE_MAC
-
+    [sender publishFrameTexture: externalFBO
+                  textureTarget: juce::gl::GL_FRAMEBUFFER
+                    imageRegion: NSMakeRect(0, 0, width, height)
+              textureDimensions: NSMakeSize(width, height)
+                        flipped: false];
 #endif
 }
 

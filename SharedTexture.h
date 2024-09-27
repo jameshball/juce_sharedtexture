@@ -2,8 +2,10 @@
 
 #ifdef __OBJC__
 @class SyphonOpenGLClient;
+@class SyphonOpenGLServer;
 #else
 class SyphonOpenGLClient;
+class SyphonOpenGLServer;
 #endif
 
 class SharedTextureSender
@@ -15,7 +17,7 @@ public:
 #if JUCE_WINDOWS
 	SPOUTLIBRARY * sender;
 #elif JUCE_MAC
-//    SyphonOpenGLServer* sender;
+    SyphonOpenGLServer* sender;
 #endif
 
 	bool isInit;
@@ -126,7 +128,7 @@ public:
 class SharedTextureManager
 {
 public:
-	juce_DeclareSingleton(SharedTextureManager,true);
+	juce_DeclareSingleton(SharedTextureManager,true)
 
 	SharedTextureManager();
 	virtual ~SharedTextureManager();
