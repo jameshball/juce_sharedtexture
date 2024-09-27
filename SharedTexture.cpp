@@ -98,6 +98,7 @@ void SharedTextureSender::setupNativeSender(bool forceRecreation)
         sender->SetSenderName (sharingName.getCharPointer());
 #elif JUCE_MAC
         sender.name = (NSString*) sharingName.toCFString();
+        isInit = true;
 #endif
 	}
 	else
@@ -162,7 +163,7 @@ void SharedTextureSender::renderGL()
 	sender->SendTexture(externalFBO, juce::gl::GL_TEXTURE_2D, width, height);
 #elif JUCE_MAC
     [sender publishFrameTexture: externalFBO
-                  textureTarget: juce::gl::GL_FRAMEBUFFER
+                  textureTarget: juce::gl::GL_TEXTURE_2D
                     imageRegion: NSMakeRect(0, 0, width, height)
               textureDimensions: NSMakeSize(width, height)
                         flipped: false];
