@@ -31,7 +31,7 @@ SharedTextureSender::SharedTextureSender(const juce::String& name, int width, in
 #if JUCE_WINDOWS
 	sender = GetSpout();
 #elif JUCE_MAC
-
+    sender = nullptr;
 #endif
 }
 
