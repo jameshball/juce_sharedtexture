@@ -57,16 +57,21 @@ void SharedTextureSender::setSize(int w, int h)
 	height = h;
 }
 
-void SharedTextureSender::setExternalFBO (const GLuint newTextureId)
+void SharedTextureSender::setSharedTextureId (const GLuint newTextureId)
 {
-	externalFBO = newTextureId;
+    sharedTextureId = newTextureId;
+}
+
+void SharedTextureSender::setDrawFunction(std::function<void()> newDrawFunction)
+{
+    drawFunction = newDrawFunction;
 }
 
 void SharedTextureSender::createImageDefinition()
 {
 	if (width == 0 || height == 0) return;
 
-	if (externalFBO != 0) return;
+	if (sharedTextureId != 0) return;
 
 	if (fbo != nullptr) fbo->release();
 
@@ -142,7 +147,7 @@ void SharedTextureSender::renderGL()
 		setupNativeSender(true);
 	}
 
-	if (externalFBO == 0)
+	if (sharedTextureId == 0)
 	{
 		if (!isInit || !image.isValid() || image.getWidth() != width || image.getHeight() != height) createImageDefinition();
 		if (!image.isValid())
@@ -160,13 +165,22 @@ void SharedTextureSender::renderGL()
 	}
 
 #if JUCE_WINDOWS
-	sender->SendTexture(externalFBO, juce::gl::GL_TEXTURE_2D, width, height);
+	sender->SendTexture(sharedTextureId, juce::gl::GL_TEXTURE_2D, width, height);
 #elif JUCE_MAC
-    [sender publishFrameTexture: externalFBO
-                  textureTarget: juce::gl::GL_TEXTURE_2D
-                    imageRegion: NSMakeRect(0, 0, width, height)
-              textureDimensions: NSMakeSize(width, height)
-                        flipped: false];
+    if (drawFunction) {
+        NSRect region = NSMakeRect(0, 0, width, height);
+        
+        if ([sender bindToDrawFrameOfSize:region.size inContext:YES]) {
+            drawFunction();
+            [sender unbindAndPublish];
+        }
+    } else {
+        [sender publishFrameTexture: sharedTextureId
+                      textureTarget: juce::gl::GL_TEXTURE_2D
+                        imageRegion: NSMakeRect(0, 0, width, height)
+                  textureDimensions: NSMakeSize(width, height)
+                            flipped: false];
+    }
 #endif
 }
 
