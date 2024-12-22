@@ -484,7 +484,7 @@ void SharedTextureReceiver::clearGL()
 }
 
 
-juce_ImplementSingleton(SharedTextureManager)
+JUCE_IMPLEMENT_SINGLETON(SharedTextureManager)
 
 SharedTextureManager::SharedTextureManager()
 {
@@ -492,6 +492,8 @@ SharedTextureManager::SharedTextureManager()
 
 SharedTextureManager::~SharedTextureManager()
 {
+	clearSingletonInstance();
+
 	while (senders.size() > 0) removeSender(senders[0], true);
 	while (receivers.size() > 0) removeReceiver(receivers[0], true);
 }

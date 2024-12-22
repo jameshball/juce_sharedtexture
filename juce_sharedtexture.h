@@ -23,6 +23,7 @@
   license:          GPLv3
 
   dependencies:     juce_core, juce_opengl
+  windowsLibs :		SpoutLibrary
 
  END_JUCE_MODULE_DECLARATION
 
