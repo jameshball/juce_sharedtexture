@@ -167,5 +167,4 @@ public:
 	void removeListener(Listener* listener) { listeners.remove(listener); }
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SharedTextureManager)
-	JUCE_DECLARE_SINGLETON(SharedTextureManager,true)
 };
