@@ -11,11 +11,11 @@ glOrtho(0, w, 0, h, 0, 1); \
 glMatrixMode(GL_MODELVIEW); \
 glLoadIdentity();
 
-#define Draw2DTexRect(x, y, w, h) glBegin(GL_QUADS); \
-glTexCoord2f(0, 0); glVertex2f(x, y); \
-glTexCoord2f(1, 0); glVertex2f(x + w, y); \
-glTexCoord2f(1, 1); glVertex2f(x + w, y + h); \
-glTexCoord2f(0, 1); glVertex2f(x, y + h); \
+#define Draw2DTexRect_Rectangle(x, y, w, h, texW, texH) glBegin(GL_QUADS); \
+glTexCoord2f(0, 0);         glVertex2f(x, y); \
+glTexCoord2f(texW, 0);      glVertex2f(x + w, y); \
+glTexCoord2f(texW, texH);   glVertex2f(x + w, y + h); \
+glTexCoord2f(0, texH);      glVertex2f(x, y + h); \
 glEnd();
 
 SharedTextureSender::SharedTextureSender(const juce::String& name, int width, int height, bool enabled) :
@@ -433,7 +433,6 @@ void SharedTextureReceiver::renderGL()
 #elif JUCE_MAC
 	if (receiver && [receiver hasNewFrame])
 	{
-
 		SyphonOpenGLImage* syphonImage = [receiver newFrameImage];
 		if (syphonImage)
 		{
@@ -453,13 +452,13 @@ void SharedTextureReceiver::renderGL()
 
 			Init2DViewport(width, height)
 
-				glEnable(GL_TEXTURE_RECTANGLE_ARB);
+            glEnable(GL_TEXTURE_RECTANGLE_ARB);
 			glDisable(GL_DEPTH_TEST);
 			glColor4f(1, 1, 1, 1);
 
 			glBindTexture(GL_TEXTURE_RECTANGLE_ARB, textureName);
 
-			Draw2DTexRect(0, 0, width, height);
+            Draw2DTexRect_Rectangle(0, 0, width, height, width, height);
 			glBindTexture(GL_TEXTURE_RECTANGLE_ARB, 0);
 
 			fbo->releaseAsRenderingTarget();
