@@ -407,14 +407,6 @@ void SharedTextureReceiver::renderGL() {
     }
 
 #elif JUCE_MAC
-    // Similar null check for Mac implementation
-    if (fbo == nullptr) {
-        createImageDefinition();
-        if (fbo == nullptr) {
-            return;
-        }
-    }
-
     if (receiver && [receiver hasNewFrame]) {
         SyphonOpenGLImage* syphonImage = [receiver newFrameImage];
         if (syphonImage) {
