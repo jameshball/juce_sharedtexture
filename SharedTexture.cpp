@@ -445,10 +445,24 @@ void SharedTextureReceiver::renderGL() {
     setConnected(success);
 
     if (success && useCPUImage) {
-        if (!outImage.isValid()) outImage = juce::Image(juce::Image::ARGB, width, height, true); // not gl to be able to manipulate
-        outImage.clear(outImage.getBounds());
-        juce::Graphics g(outImage);
-        g.drawImage(image, outImage.getBounds().toFloat());
+        if (!outImage.isValid() || outImage.getWidth() != width || outImage.getHeight() != height)
+            outImage = juce::Image(juce::Image::ARGB, width, height, true);
+
+        juce::Image::BitmapData sourceData(image, image.getBounds(), juce::Image::BitmapData::readOnly);
+        juce::Image::BitmapData destData(outImage, outImage.getBounds(), juce::Image::BitmapData::writeOnly);
+
+        jassert(sourceData.pixelStride == destData.pixelStride);
+
+        const auto copyWidth = juce::jmin(sourceData.width, destData.width);
+        const auto copyHeight = juce::jmin(sourceData.height, destData.height);
+        const auto rowBytes = (size_t) copyWidth * (size_t) destData.pixelStride;
+
+        for (int y = 0; y < copyHeight; ++y)
+        {
+            auto* dstLine = destData.getLinePointer(y);
+            auto* srcLine = sourceData.getLinePointer(copyHeight - 1 - y);
+            std::memcpy(dstLine, srcLine, rowBytes);
+        }
     }
 
     listeners.call(&Listener::textureUpdated, this);
